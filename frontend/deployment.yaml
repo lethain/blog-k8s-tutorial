@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - image: gcr.io/larson-deployment/frontend:9d235a76ab48674404f74f071515241b5ace1780
+        imagePullPolicy: Always
+        name: frontend
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        readinessProbe:
+          httpGet:
+            path: /health/
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 1	
+        livenessProbe:
+          httpGet:
+            path: /health/
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 1	

@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: daedalus
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: daedalus
+    spec:
+      containers:
+      - image: gcr.io/larson-deployment/daedalus:master
+        imagePullPolicy: Always
+        name: daedalus
+        ports:
+        - containerPort: 6500
+        readinessProbe:
+          httpGet:
+            path: /health/
+            port: 6500
+          initialDelaySeconds: 5
+          timeoutSeconds: 1	

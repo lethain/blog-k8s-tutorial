@@ -1,0 +1,68 @@
+server {
+  listen *;
+  server_name www.lethain.com;
+  location / {
+    rewrite ^/(.*) http://lethain.com/$1 permanent;
+  }
+}
+
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  server_name lethain.com;
+  # this should probably be deleted, but if you
+  # want to use let's encrypt *and* to have more than
+  # one frontend (required for rolling deploys to work),
+  # then you'll need the challenge files to live in a single
+  # place, which is probably a singleton nginx server serving
+  # /.well-known/ and proxied from the others.
+  #
+  # The specific IO is a service's ClusterIP,
+  # discovered `kubectl get services`.
+  location ~ /.well-known {
+    proxy_pass http://10.71.250.205:5000;
+  }
+
+  # this is the ClusterIP from Daedalus' service,
+  # discovered `kubectl get services`.
+  # this is not necessary if you're allowing HTTP access to your site,
+  # but *is* once you
+  # want to avoid redirecting HTTP healthchecks to HTTPS,
+  # which the load balancer will interpret as failure.
+  location /health/ {
+    proxy_pass http://10.71.255.174:6500/health/;
+    proxy_set_header Host      $host;
+    proxy_set_header X-Real-IP $remote_addr;    
+  }
+
+  # if you want to only serve HTTPS
+  #location / {
+  #  return 301 https://$server_name$request_uri;
+  #}
+  location / {
+    proxy_pass http://10.71.255.174:6500/;  
+    proxy_set_header Host      $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}
+
+server {
+  listen 443 ssl default_server;
+  listen [::]:443 default_server;
+  server_name lethain.com;
+  # cert path would not be this one :-)
+  ssl_certificate /etc/letsencrypt/live/willarson.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/willarson.com/privkey.pem;
+  # in principle let's encrypt is always going to check at http versus https,
+  # but this makes debugging challenge files easier, and let's encrypt is willing to follow
+  # redirects, so might as well.
+  location ~ /.well-known {
+    proxy_pass http://10.71.250.205:5000;
+  }
+  
+  location / {
+    proxy_pass http://10.71.255.174:6500/;  
+    proxy_set_header Host      $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}
