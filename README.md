@@ -31,10 +31,10 @@ challenge files.
 * `service.yaml` - just another ClusterIP for routing.
 
 I'm also running [gke_ci](https://github.com/lethain/gke_ci) for continuous integration.
-(Note that it doesn't need a `service.yaml` because it isn't routable.)
+(Note that it doesn't need a `service.yaml` because it isn't routable.):
 
-    * [Dockerfile](https://github.com/lethain/gke_ci) - is same as in `lethain/gke_ci`.
-    *  `deployment.yaml` - configuration for a singleton instance running CI
+  * [Dockerfile](https://github.com/lethain/gke_ci) - is same as in `lethain/gke_ci`.
+  *  `deployment.yaml` - configuration for a singleton instance running CI
 
 I also ported over [systemsandpapers.com](https://systemsandpapers.com/), which is a bit more complex:
 a Ruby service using MySQL and Memcache. Google doesn't have a convenient hosted Memcache solution
