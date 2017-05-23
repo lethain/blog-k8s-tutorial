@@ -16,3 +16,29 @@ Manifest is:
     * `Dockerfile` - installs Nginx and copies nginx configs in (also SSL certs, if you set that up).
     * `deployment.yaml` - configures the frontend, here is proxying to Daedalus' healthcheck for frontend's liveness as well.
     * `service.yaml` a LoadBalancer type service, which instantiates a Google Loadbalancer to represent it externally (TCP).
+
+
+The above is all you'd need for an HTTP setup, if you want HTTPS, I'm also running a simple `cert-refresh` application,
+which is... less automated than I'd like, but is a singleton reverse-proxied to by the `frontend` tier to serve let's encrypt
+challenge files.
+
+
+
+
+I'm also running [gke_ci](https://github.com/lethain/gke_ci) for continuous integration.
+
+    * [Dockerfile](https://github.com/lethain/gke_ci) - is same as in `lethain/gke_ci`.
+    *  `deployment.yaml` - configuration for a singleton instance running CI
+
+
+
+I also ported over [systemsandpapers.com](https://systemsandpapers.com/), which is a bit more complex:
+a Ruby service using MySQL and Memcache. Google doesn't have a convenient hosted Memcache solution
+(it has one, but it's part of Google App Engine and doesn't appear usable externalyl), so this is running
+a single node because I didn't want to figure out discovery properly when I set it up (and it's just for
+session tokens so... whatever).
+
+Also note that Google Cloud SQL is [moderately frustrating to access from GKE](https://cloud.google.com/sql/docs/mysql/connect-container-engine),
+requiring you to setup a proxy container, so Papers' `deployment.yaml` is more complex:
+
+* `memcache` - Docker and Kubernetes configs for memcache service

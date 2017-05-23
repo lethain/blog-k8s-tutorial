@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: memcache-docker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+         app: memcache-docker
+    spec:
+      containers:
+        - image: gcr.io/larson-deployment/github-lethain-memcache-docker:08789da0ab401565ee69ffcf9f43c92e44be6a04
+          imagePullPolicy: Always
+          name: memcache-docker

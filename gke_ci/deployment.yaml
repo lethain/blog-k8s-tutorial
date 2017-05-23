@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gke-ci
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gke-ci
+    spec:
+      containers:
+        - image: gcr.io/larson-deployment/gke-ci:a5bdb26073ce798ab86d61f5fe2c532c1c97ac54
+          env:
+            - name: "GOOGLE_APPLICATION_CREDENTIALS"
+              value: "/var/run/secret/cloud.google.com/pubsub-creds.json"
+          volumeMounts:
+            - name: "service-account"
+              mountPath: "/var/run/secret/cloud.google.com"
+          imagePullPolicy: Always
+          name: gke-ci
+          command: ["/usr/bin/python"]
+          args: ["ci.py", "gke_ci"]
+      volumes:
+        - name: "service-account"
+          secret:
+            secretName: gke-ci

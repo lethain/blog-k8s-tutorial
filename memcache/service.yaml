@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: memcache-docker
+spec:
+  ports:
+  - port: 11211
+    targetPort: 11211
+    protocol: TCP
+  type: ClusterIP
+  selector:
+    app: memcache-docker
